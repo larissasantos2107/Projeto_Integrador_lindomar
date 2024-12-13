@@ -1,0 +1,137 @@
+
+<!-- 
+ PASSO 2
+ - Foi acrescentado um passador de tela com todos os produtos. 
+ - Entregar para os alunos essa página, sem o código.
+ -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário do Produto</title>
+    <style>
+        form {
+            width: 300px;
+            margin: auto;
+            font-family: Arial, sans-serif;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px auto;
+            width: 300px;
+        }
+        .navigation button {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align: center;">Detalhes do Produto</h2>
+    <form id="productForm">
+        <label for="id">ID</label>
+        <input type="text" id="id" name="id" readonly>
+
+        <label for="tituloProduto">Título do Produto</label>
+        <input type="text" id="tituloProduto" name="tituloProduto">
+
+        <label for="preco">Preço</label>
+        <input type="number" id="preco" name="preco" step="0.01">
+
+        <label for="descricao">Descrição</label>
+        <input type="text" id="descricao" name="descricao">
+
+        <label for="imgProduto">Imagem do Produto</label>
+        <input type="text" id="imgProduto" name="imgProduto">
+
+        <label for="catProduto">Categoria do Produto</label>
+        <input type="text" id="catProduto" name="catProduto">
+
+        <label for="classProduto">Classificação do Produto</label>
+        <select id="classProduto" name="classProduto">
+            <option value="Novo">Novo</option>
+            <option value="Usado">Usado</option>
+        </select>
+
+        <label for="exibirHome">Exibir na Home</label>
+        <select id="exibirHome" name="exibirHome">
+            <option value="true">Sim</option>
+            <option value="false">Não</option>
+        </select>
+
+        <button type="submit">Salvar</button>
+    </form>
+
+    <div class="navigation">
+        <button id="prevBtn">Anterior</button>
+        <button id="nextBtn">Próximo</button>
+    </div>
+
+    <script>
+        let currentId = 1; // Início com ID 1 (ou ajuste conforme necessário)
+
+        async function fetchProduct(id) {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/produtos/${id}`);
+                if (!response.ok) throw new Error("Produto não encontrado");
+
+                const produto = await response.json();
+
+                document.getElementById("id").value = produto.id;
+                document.getElementById("tituloProduto").value = produto.tituloProduto;
+                document.getElementById("preco").value = produto.preco;
+                document.getElementById("descricao").value = produto.descricao;
+                document.getElementById("imgProduto").value = produto.imgProduto;
+                document.getElementById("catProduto").value = produto.catProduto;
+                document.getElementById("classProduto").value = produto.classProduto;
+                document.getElementById("exibirHome").value = produto.exibirHome;
+            } catch (error) {
+                console.error("Erro:", error);
+                alert("Não foi possível carregar os dados do produto.");
+            }
+        }
+
+        document.getElementById("prevBtn").addEventListener("click", () => {
+            if (currentId > 1) {
+                currentId--; // Vai para o produto anterior
+                fetchProduct(currentId);
+            } else {
+                alert("Você está no primeiro produto.");
+            }
+        });
+
+        document.getElementById("nextBtn").addEventListener("click", async () => {
+            currentId++; // Vai para o próximo produto
+            try {
+                await fetchProduct(currentId);
+            } catch {
+                alert("Você está no último produto.");
+                currentId--; // Volta para o ID válido anterior
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", () => fetchProduct(currentId));
+    </script>
+</body>
+</html>
